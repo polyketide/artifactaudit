@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run ANY command under the OS egress sandbox (macOS Seatbelt). The process physically cannot open an
 # outbound socket or write outside STATE_DIR / OUT_DIR — enforced by the kernel, not by the model and
-# not by the Python allowlist. This is the hard layer; sciguard/egress.py is the soft one.
+# not by the Python allowlist. This is the hard layer; artifactaudit/egress.py is the soft one.
 #
 #   STATE_DIR=./state OUT_DIR=./out sandbox/run-sandboxed.sh python -m your_agent --offline
 #   sandbox/run-sandboxed.sh /usr/bin/true            # smoke-test the profile itself

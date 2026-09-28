@@ -30,4 +30,4 @@ jobs:
       - run: python -m pip install --upgrade pip && python -m pip install -e ".[documents,dev]"
       - run: python -m pytest -q
       - name: the package imports from an install, not just from the source tree
-        run: python -c "import sciguard, sciguard.ingest; print(sciguard.__version__)"
+        run: python -c "import artifactaudit, artifactaudit.ingest; print(artifactaudit.__version__)"

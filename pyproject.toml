@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "sciguard"
+name = "artifactaudit"
 version = "0.1.0"
 description = "Deterministic guardrails for AI-assisted research: artifact-integrity audits and host confinement for unpublished data"
 readme = "README.md"
@@ -23,7 +23,7 @@ documents = ["pypdf>=4.0", "openpyxl>=3.1"] # ingest text extraction from .pdf /
 dev = ["pytest>=7.0"]
 
 [tool.setuptools.packages.find]
-include = ["sciguard*"]
+include = ["artifactaudit*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

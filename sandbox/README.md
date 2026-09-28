@@ -6,7 +6,7 @@ readable and precise, the kernel one is the one that actually holds.
 | Layer | Where | Bypassable by prompt tricks? | What it stops |
 |---|---|---|---|
 | **1. OS sandbox** (authoritative) | `agent.sb` + `run-sandboxed.sh` (macOS Seatbelt) | **No** — kernel-enforced | any outbound socket; writes outside `STATE_DIR`, `OUT_DIR` and the temp directories |
-| **2. In-process gate** (defense in depth) | `sciguard/egress.py`, `sciguard/confidential.py` | heuristic | a fetch or a shell command aimed at a non-allowlisted host, and transmission of a registered sequence — refused *before* it runs, with a reason |
+| **2. In-process gate** (defense in depth) | `artifactaudit/egress.py`, `artifactaudit/confidential.py` | heuristic | a fetch or a shell command aimed at a non-allowlisted host, and transmission of a registered sequence — refused *before* it runs, with a reason |
 
 ## Use
 
@@ -27,7 +27,7 @@ point, and there are two ways to live with it:
 2. **Relaxed profile.** A variant that permits network and relies on layer 2's allowlist to constrain
    destinations. Strictly weaker than layer 1 — a bug in the allowlist is now a leak.
 
-Calling `sciguard.egress.assert_airgap()` inside a strict run makes layer 2 agree with layer 1: the
+Calling `artifactaudit.egress.assert_airgap()` inside a strict run makes layer 2 agree with layer 1: the
 allowlist is emptied in-process, so every URL is treated as exfiltration and the refusal is logged with a
 reason instead of surfacing as an opaque socket error.
 

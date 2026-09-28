@@ -1,9 +1,9 @@
-;; sciguard — OS egress sandbox (macOS Seatbelt / sandbox-exec).
+;; artifactaudit — OS egress sandbox (macOS Seatbelt / sandbox-exec).
 ;;
 ;; Authoritative egress + source-integrity enforcement: the agent process can READ widely and
 ;; COMPUTE, but the kernel forbids it from (a) opening ANY outbound network socket and (b) writing
 ;; anywhere except its own state/output dirs. Prompt injection cannot bypass this — it is enforced
-;; below the model. The in-process gate (sciguard/egress.py) is a second, softer layer.
+;; below the model. The in-process gate (artifactaudit/egress.py) is a second, softer layer.
 ;;
 ;; Launch via sandbox/run-sandboxed.sh, which passes -D STATE_DIR=… -D OUT_DIR=… and then execs
 ;; whatever command you give it.

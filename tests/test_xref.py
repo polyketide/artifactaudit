@@ -1,5 +1,5 @@
 """Cross-reference / placeholder auditing. Fixtures are synthetic."""
-from sciguard.xref import audit_references, extract_refs, format_audit
+from artifactaudit.xref import audit_references, extract_refs, format_audit
 
 
 def test_unfilled_placeholders_are_flagged():

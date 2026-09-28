@@ -1,4 +1,4 @@
-"""sciguard — deterministic guardrails for AI-assisted research.
+"""artifactaudit — deterministic guardrails for AI-assisted research.
 
 Two halves. Nothing here calls a model and nothing here opens a socket.
 

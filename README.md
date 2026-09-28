@@ -1,6 +1,6 @@
-# sciguard
+# artifactaudit
 
-[![ci](https://github.com/polyketide/sciguard/actions/workflows/ci.yml/badge.svg)](https://github.com/polyketide/sciguard/actions/workflows/ci.yml)
+[![ci](https://github.com/polyketide/artifactaudit/actions/workflows/ci.yml/badge.svg)](https://github.com/polyketide/artifactaudit/actions/workflows/ci.yml)
 
 Deterministic guardrails for AI-assisted research. Two things a language model cannot be trusted to do
 about its own output, done in plain Python that either fires or does not:
@@ -44,7 +44,7 @@ URL becomes exfiltration, and a kernel sandbox that does not care what the Pytho
 ### `xref` — referencing and placeholders
 
 ```python
-from sciguard.xref import audit_references, format_audit
+from artifactaudit.xref import audit_references, format_audit
 
 a = audit_references(
     "Figure 1 shows the fold; see Figure 2 and Figure 5A; cf. Fig S21 for controls. "
@@ -70,7 +70,7 @@ flag without eating a genuine question mark, including a CJK one.
 ### `reconcile` — the same number, reported twice
 
 ```python
-from sciguard.reconcile import reconcile_mutants
+from artifactaudit.reconcile import reconcile_mutants
 
 flags = reconcile_mutants({
     "main": "K72A was nearly inactive in our hands. D145N retained 40% activity.",
@@ -87,7 +87,7 @@ that merely look like mutants (`H2O`, `D2O`) are excluded by name.
 ### `induction` — claim versus evidence
 
 ```python
-from sciguard.induction import audit_claims
+from artifactaudit.induction import audit_claims
 
 audit_claims(
     [{"text": "We demonstrate turnover.", "evidence": ["assay-1"]},
@@ -107,7 +107,7 @@ evidence at all" becomes a mechanical finding.
 ### `provenance` — a finding must name its source of record
 
 ```python
-from sciguard.provenance import require_source
+from artifactaudit.provenance import require_source
 
 require_source({"text": "kcat is 3.2 per second", "source": None})
 # (False, '[BLOCKING] no source-of-record …')
@@ -127,7 +127,7 @@ explicit not-read list with reasons**. Silent partial ingestion is the failure t
 ## Confinement
 
 ```python
-from sciguard import egress, confidential
+from artifactaudit import egress, confidential
 
 egress.is_allowed_url("https://www.ebi.ac.uk/proteins/api/…")   # True  — on the allowlist
 egress.is_allowed_url("https://paste.example.com/upload")       # False
@@ -140,7 +140,7 @@ confidential.is_confidential(seq)   # True only for sequences in a local, never-
 ```
 
 `confidential` is **default-open**: with no registry nothing is confidential, so the guard cannot
-silently block ordinary work. Point it at a file with `ENZYME_CONFIDENTIAL_SEQS`, or create
+silently block ordinary work. Point it at a file with `ARTIFACTAUDIT_CONFIDENTIAL_SEQS`, or create
 `./state/confidential-seqs.txt`, one sequence per entry, plain or FASTA. An *explicitly configured*
 registry that does not exist raises instead of returning "nothing is confidential", because a mistyped
 path must not read as an all-clear.
@@ -157,7 +157,7 @@ real runtimes pass tool arguments as nested dicts and lists, so a check that onl
 string values misses the common case.
 
 ```python
-from sciguard import confidential, egress
+from artifactaudit import confidential, egress
 
 
 def _strings(value):

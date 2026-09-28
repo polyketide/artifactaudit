@@ -1,7 +1,7 @@
 """Inventory, classification and read-coverage. Fixtures are synthetic temp files."""
 import os
 
-from sciguard.ingest import classify, coverage, inventory
+from artifactaudit.ingest import classify, coverage, inventory
 
 
 def test_classify_by_extension():

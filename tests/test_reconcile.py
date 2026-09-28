@@ -1,5 +1,5 @@
 """Cross-artifact numeric reconciliation. Fixtures are synthetic."""
-from sciguard.reconcile import extract_mutant_values, extract_mz, reconcile, reconcile_mutants
+from artifactaudit.reconcile import extract_mutant_values, extract_mz, reconcile, reconcile_mutants
 
 MAIN = "K72A was nearly inactive in our hands. D145N retained 40% activity."
 SI = "K72A 10% ; D145N 4%"

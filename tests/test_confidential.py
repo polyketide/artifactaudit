@@ -9,14 +9,14 @@ a published expression-tag sequence would make the "all fixtures are synthetic" 
 """
 import pytest
 
-from sciguard import confidential
+from artifactaudit import confidential
 
 SEQ = "MQWRTYKLPDGEAVNHSFICQWRTYKLPDGEA"
 OTHER = "MLPDQWKRTYNGHEAVSFICMLPDQWKRTYNG"
 
 
 def _use(monkeypatch, path):
-    monkeypatch.setenv("ENZYME_CONFIDENTIAL_SEQS", str(path))
+    monkeypatch.setenv("ARTIFACTAUDIT_CONFIDENTIAL_SEQS", str(path))
     confidential.reload_registry()
 
 
@@ -27,7 +27,7 @@ def _reg(tmp_path, body, name="confidential-seqs.txt"):
 
 
 def test_default_open_when_nothing_is_configured(monkeypatch, tmp_path):
-    monkeypatch.delenv("ENZYME_CONFIDENTIAL_SEQS", raising=False)
+    monkeypatch.delenv("ARTIFACTAUDIT_CONFIDENTIAL_SEQS", raising=False)
     monkeypatch.chdir(tmp_path)          # no ./state/confidential-seqs.txt here
     confidential.reload_registry()
     assert confidential.is_confidential(SEQ) is False
@@ -73,7 +73,7 @@ def test_the_cwd_registry_is_found_without_any_environment_variable(monkeypatch,
     # The README tells a reader to create ./state/confidential-seqs.txt. Resolving only against the
     # installed package put that file outside the search path, so a correctly-followed README produced
     # a guard that was silently off.
-    monkeypatch.delenv("ENZYME_CONFIDENTIAL_SEQS", raising=False)
+    monkeypatch.delenv("ARTIFACTAUDIT_CONFIDENTIAL_SEQS", raising=False)
     (tmp_path / "state").mkdir()
     (tmp_path / "state" / "confidential-seqs.txt").write_text(SEQ + "\n", encoding="utf-8")
     monkeypatch.chdir(tmp_path)
@@ -86,7 +86,7 @@ def test_registry_path_reports_whether_it_was_configured(monkeypatch, tmp_path):
     _use(monkeypatch, reg)
     path, explicit = confidential.registry_path()
     assert path == str(reg) and explicit is True
-    monkeypatch.delenv("ENZYME_CONFIDENTIAL_SEQS", raising=False)
+    monkeypatch.delenv("ARTIFACTAUDIT_CONFIDENTIAL_SEQS", raising=False)
     assert confidential.registry_path()[1] is False
 
 

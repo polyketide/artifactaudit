@@ -2,7 +2,7 @@
 
 ## Where this came from
 
-`sciguard` is a **whitelist extraction** from a larger private research agent. The modules here are the
+`artifactaudit` is a **whitelist extraction** from a larger private research agent. The modules here are the
 parts that carry no research content: they check artifacts and confine data. The private repository is
 not public and will not be. This package is not a mirror of it and cannot be recombined into it.
 
@@ -78,10 +78,10 @@ What the audit changed, beyond the individual fixes:
   package does not hardcode a particular group's numbering.
 - Two comments used real residue labels as examples; these are now generic labels.
 - One module's embedded self-test was removed.
-- Package renamed and flattened into a single `sciguard/` package. Internal relative imports still
+- Package renamed and flattened into a single `artifactaudit/` package. Internal relative imports still
   resolve.
 - New files, written for this package and not extracted: `README.md`, this file, `pyproject.toml`,
-  `LICENSE`, `sciguard/__init__.py`, everything under `tests/`, the CI workflow, `sandbox/README.md` and
+  `LICENSE`, `artifactaudit/__init__.py`, everything under `tests/`, the CI workflow, `sandbox/README.md` and
   `sandbox/run-sandboxed.sh`. The last two were rewritten rather than extracted: the originals hardcoded
   the private entry point, so shipping them would have shipped two broken files.
 
@@ -105,6 +105,9 @@ mechanically rather than asserting it.
   was written during doctoral work. Whether the author may grant MIT is a question for the institution's
   technology-transfer office and the terms of the fellowship. It is recorded here because it has not been
   answered, and nothing in this file should be read as a claim that it has been.
-- **The name.** `sciguard` is free on PyPI. Five repositories on GitHub already use the name, all without
-  stars, and one of them does overlapping work. The name was kept deliberately; changing it later does not
-  reach existing forks.
+- **The name.** This package was first published as `sciguard` and renamed to `artifactaudit` on the same
+  day, before it had any forks or dependents. The reason: five repositories on GitHub already used the old
+  name, one of them doing overlapping work, so the name was poor for finding this one and invited the
+  question of whether it was a fork of that one. `artifactaudit` was free on PyPI and unused as a
+  repository name at the time of the rename. GitHub redirects the old URL, but a rename after other people
+  depend on a name does not reach them, which is why it was done immediately rather than later.

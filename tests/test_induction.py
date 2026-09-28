@@ -1,5 +1,5 @@
 """Claim → evidence → strength → controls auditing. Fixtures are synthetic."""
-from sciguard.induction import (audit_claims, claim_preparse, claim_strength, format_audit,
+from artifactaudit.induction import (audit_claims, claim_preparse, claim_strength, format_audit,
                                 is_negative, strongest_strength_word)
 
 

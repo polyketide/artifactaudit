@@ -11,7 +11,8 @@ confidential → allow (default-open — the common case). This replaces the old
 tripwire, which was over-strict.
 
 Registry: one protein/nucleotide sequence per entry (plain or FASTA), '#' comments ignored. Path =
-env `ENZYME_CONFIDENTIAL_SEQS` else `state/confidential-seqs.txt` (private, never committed). Matching
+env `ARTIFACTAUDIT_CONFIDENTIAL_SEQS` (legacy `ENZYME_CONFIDENTIAL_SEQS` still accepted) else
+`state/confidential-seqs.txt`, relative to the working directory (private, never committed). Matching
 is substring-either-way on the letters-only normal form, so a full paste OR a fragment is caught —
 but only down to 20 letters. A registry entry shorter than that is DISCARDED, and a query shorter
 than that is never confidential, because short strings match too much to be useful.
@@ -22,6 +23,8 @@ from __future__ import annotations
 import os
 import re
 
+ENV_VAR = "ARTIFACTAUDIT_CONFIDENTIAL_SEQS"
+ENV_VAR_LEGACY = "ENZYME_CONFIDENTIAL_SEQS"   # accepted, for trees that already set it
 _REL_REGISTRY = os.path.join("state", "confidential-seqs.txt")
 _MIN_LEN = 20   # shorter "sequences" are too generic to be meaningfully confidential
 
@@ -29,14 +32,15 @@ _MIN_LEN = 20   # shorter "sequences" are too generic to be meaningfully confide
 def registry_path() -> tuple[str, bool]:
     """(path, explicitly_configured). Resolution order, first hit wins:
 
-    1. `$ENZYME_CONFIDENTIAL_SEQS` — explicit, and therefore fail-CLOSED if it does not exist.
+    1. `$ARTIFACTAUDIT_CONFIDENTIAL_SEQS` (or the legacy `$ENZYME_CONFIDENTIAL_SEQS`) — explicit, and
+       therefore fail-CLOSED if it does not exist.
     2. `./state/confidential-seqs.txt` relative to the CURRENT WORKING DIRECTORY. This is the one a
        reader of the README actually creates. Resolving only against the installed package put the
        expected file outside the search path entirely, so a correctly-followed README produced a
        guard that was silently off.
     3. the same path beside the package, for a source checkout.
     """
-    env = os.environ.get("ENZYME_CONFIDENTIAL_SEQS")
+    env = os.environ.get(ENV_VAR) or os.environ.get(ENV_VAR_LEGACY)
     if env:
         return (env, True)
     cwd = os.path.join(os.getcwd(), _REL_REGISTRY)

@@ -1,7 +1,7 @@
 """Host allowlist and the free-text URL scan. No network is touched."""
 import pytest
 
-from sciguard import egress
+from artifactaudit import egress
 
 
 @pytest.fixture(autouse=True)

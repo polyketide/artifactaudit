@@ -1,5 +1,5 @@
 """Source-of-record gating. Fixtures are synthetic."""
-from sciguard.provenance import audit_memory, classify_source, require_source
+from artifactaudit.provenance import audit_memory, classify_source, require_source
 
 
 def test_a_sealed_lab_notebook_entry_is_primary():
