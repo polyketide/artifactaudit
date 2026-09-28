@@ -1,0 +1,41 @@
+;; sciguard — OS egress sandbox (macOS Seatbelt / sandbox-exec).
+;;
+;; Authoritative egress + source-integrity enforcement: the agent process can READ widely and
+;; COMPUTE, but the kernel forbids it from (a) opening ANY outbound network socket and (b) writing
+;; anywhere except its own state/output dirs. Prompt injection cannot bypass this — it is enforced
+;; below the model. The in-process gate (sciguard/egress.py) is a second, softer layer.
+;;
+;; Launch via sandbox/run-sandboxed.sh, which passes -D STATE_DIR=… -D OUT_DIR=… and then execs
+;; whatever command you give it.
+;; NOTE: this profile is STRICT (no network) — anything that fetches will NOT work under it. Run
+;; network phases separately and cache into STATE_DIR (see sandbox/README.md), or use a relaxed
+;; profile that allows only the allowlisted hosts. Test on your macOS version before
+;; trusting it: `sandbox-exec -f sandbox/agent.sb -D STATE_DIR=… -D OUT_DIR=… /usr/bin/true`.
+
+(version 1)
+(deny default)
+
+;; --- run a Python process ---
+(allow process-fork)
+(allow process-exec)
+(allow sysctl-read)
+(allow mach-lookup)
+(allow signal (target self))
+
+;; --- read widely: repo, interpreter, libraries, and the (read-only) manuscripts ---
+(allow file-read*)
+(allow file-read-metadata)
+
+;; --- HARD egress block: no outbound network of any kind ---
+(deny network*)
+
+;; --- writes ONLY to the agent's own state + outputs (+ tmp). Manuscripts/source stay read-only
+;;     because file-write* is NOT granted to their paths. ---
+(allow file-write*
+  (subpath (param "STATE_DIR"))
+  (subpath (param "OUT_DIR"))
+  (subpath "/private/var/folders")
+  (subpath "/private/tmp")
+  (literal "/dev/null")
+  (literal "/dev/stdout")
+  (literal "/dev/stderr"))

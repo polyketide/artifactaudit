@@ -1,0 +1,33 @@
+name: ci
+on:
+  push:
+  pull_request:
+jobs:
+  # The core is standard-library only. This job installs NOTHING but pytest, so a green tick here is
+  # evidence of that claim rather than an assertion of it.
+  core:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install --upgrade pip && python -m pip install pytest
+      - run: python -m pytest -q
+
+  # The optional document-extraction path (pypdf, openpyxl) is not exercised by the core job, so a
+  # green core tick says nothing about it. This job installs the extra and runs the suite again.
+  extras:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip && python -m pip install -e ".[documents,dev]"
+      - run: python -m pytest -q
+      - name: the package imports from an install, not just from the source tree
+        run: python -c "import sciguard, sciguard.ingest; print(sciguard.__version__)"
