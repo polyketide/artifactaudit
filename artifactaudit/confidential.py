@@ -11,7 +11,7 @@ confidential → allow (default-open — the common case). This replaces the old
 tripwire, which was over-strict.
 
 Registry: one protein/nucleotide sequence per entry (plain or FASTA), '#' comments ignored. Path =
-env `ARTIFACTAUDIT_CONFIDENTIAL_SEQS` (legacy `ENZYME_CONFIDENTIAL_SEQS` still accepted) else
+env `ARTIFACTAUDIT_CONFIDENTIAL_SEQS` (any other `*_CONFIDENTIAL_SEQS` is refused, not ignored) else
 `state/confidential-seqs.txt`, relative to the working directory (private, never committed). Matching
 is substring-either-way on the letters-only normal form, so a full paste OR a fragment is caught —
 but only down to 20 letters. A registry entry shorter than that is DISCARDED, and a query shorter
@@ -24,7 +24,6 @@ import os
 import re
 
 ENV_VAR = "ARTIFACTAUDIT_CONFIDENTIAL_SEQS"
-ENV_VAR_LEGACY = "ENZYME_CONFIDENTIAL_SEQS"   # accepted, for trees that already set it
 _REL_REGISTRY = os.path.join("state", "confidential-seqs.txt")
 _MIN_LEN = 20   # shorter "sequences" are too generic to be meaningfully confidential
 
@@ -32,17 +31,24 @@ _MIN_LEN = 20   # shorter "sequences" are too generic to be meaningfully confide
 def registry_path() -> tuple[str, bool]:
     """(path, explicitly_configured). Resolution order, first hit wins:
 
-    1. `$ARTIFACTAUDIT_CONFIDENTIAL_SEQS` (or the legacy `$ENZYME_CONFIDENTIAL_SEQS`) — explicit, and
-       therefore fail-CLOSED if it does not exist.
+    1. `$ARTIFACTAUDIT_CONFIDENTIAL_SEQS` — explicit, and therefore fail-CLOSED if it does not exist.
+       Any OTHER `*_CONFIDENTIAL_SEQS` variable (an older release read a different name) is refused
+       rather than ignored: ignoring it would switch the guard off without a word.
     2. `./state/confidential-seqs.txt` relative to the CURRENT WORKING DIRECTORY. This is the one a
        reader of the README actually creates. Resolving only against the installed package put the
        expected file outside the search path entirely, so a correctly-followed README produced a
        guard that was silently off.
     3. the same path beside the package, for a source checkout.
     """
-    env = os.environ.get(ENV_VAR) or os.environ.get(ENV_VAR_LEGACY)
+    env = os.environ.get(ENV_VAR)
     if env:
         return (env, True)
+    stale = sorted(k for k, v in os.environ.items()
+                   if k.endswith("_CONFIDENTIAL_SEQS") and k != ENV_VAR and v)
+    if stale:
+        raise RuntimeError(
+            f"${stale[0]} is set, but this version reads ${ENV_VAR}. Rename it; until then the "
+            f"guard refuses to run rather than report that nothing is confidential.")
     cwd = os.path.join(os.getcwd(), _REL_REGISTRY)
     if os.path.exists(cwd):
         return (cwd, False)
@@ -71,7 +77,7 @@ def _protected() -> frozenset[str]:
             # absent one. Failing closed here is the whole point: a mistyped path must not read as
             # "nothing is confidential".
             raise FileNotFoundError(
-                f"ENZYME_CONFIDENTIAL_SEQS points at {path!r}, which does not exist. "
+                f"${ENV_VAR} points at {path!r}, which does not exist. "
                 f"Refusing to report that nothing is confidential. Unset it to disable the guard.")
         return frozenset()
     key = (os.path.abspath(path), os.path.getmtime(path))

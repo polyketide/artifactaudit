@@ -15,6 +15,16 @@ SEQ = "MQWRTYKLPDGEAVNHSFICQWRTYKLPDGEA"
 OTHER = "MLPDQWKRTYNGHEAVSFICMLPDQWKRTYNG"
 
 
+@pytest.fixture(autouse=True)
+def _no_inherited_registry_variables(monkeypatch):
+    # Any *_CONFIDENTIAL_SEQS already in the developer's environment would change what these tests
+    # see (another one set is now refused), so each test starts from none.
+    import os
+    for k in list(os.environ):
+        if k.endswith("_CONFIDENTIAL_SEQS"):
+            monkeypatch.delenv(k)
+
+
 def _use(monkeypatch, path):
     monkeypatch.setenv("ARTIFACTAUDIT_CONFIDENTIAL_SEQS", str(path))
     confidential.reload_registry()
@@ -99,3 +109,25 @@ def test_editing_the_registry_is_picked_up(monkeypatch, tmp_path):
     reg.write_text(SEQ + "\n", encoding="utf-8")
     confidential.reload_registry()
     assert confidential.is_confidential(SEQ) is True
+
+
+def test_another_registry_variable_is_refused_not_ignored(monkeypatch, tmp_path):
+    # An older release read a differently named variable. Ignoring it would leave someone who set it
+    # with a guard that is silently off, so the guard refuses until the variable is renamed.
+    monkeypatch.setenv("OLDTOOL_CONFIDENTIAL_SEQS", str(_reg(tmp_path, SEQ + "\n")))
+    monkeypatch.chdir(tmp_path)
+    confidential.reload_registry()
+    with pytest.raises(RuntimeError, match="OLDTOOL_CONFIDENTIAL_SEQS.*ARTIFACTAUDIT_CONFIDENTIAL_SEQS"):
+        confidential.is_confidential(SEQ)
+
+
+def test_the_current_variable_wins_when_both_are_set(monkeypatch, tmp_path):
+    monkeypatch.setenv("OLDTOOL_CONFIDENTIAL_SEQS", str(tmp_path / "ignored.txt"))
+    _use(monkeypatch, _reg(tmp_path, SEQ + "\n"))
+    assert confidential.is_confidential(SEQ) is True
+
+
+def test_the_missing_registry_error_names_the_variable_that_was_set(monkeypatch, tmp_path):
+    _use(monkeypatch, tmp_path / "typo.txt")
+    with pytest.raises(FileNotFoundError, match=r"^\$ARTIFACTAUDIT_CONFIDENTIAL_SEQS points at"):
+        confidential.is_confidential(SEQ)

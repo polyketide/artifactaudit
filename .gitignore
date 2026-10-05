@@ -9,7 +9,7 @@ build/
 .DS_Store
 
 # --- never commit an unpublished-sequence registry -------------------------------------------
-# The documented mechanism accepts ANY path via ENZYME_CONFIDENTIAL_SEQS, so pinning one basename
+# The documented mechanism accepts ANY path via ARTIFACTAUDIT_CONFIDENTIAL_SEQS, so pinning one basename
 # is not enough. These patterns cover the documented default, the obvious variants, and the
 # directories a run is told to write into.
 confidential-seqs.txt
