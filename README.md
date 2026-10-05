@@ -16,13 +16,21 @@ about its own output, done in plain Python that either fires or does not:
 No model calls. No network calls. The core has **no dependencies outside the standard library**, so it
 runs in CI, on a cluster node, or inside an air-gapped sandbox without installing anything.
 
+Requires Python ≥ 3.10.
+
 ```bash
-pip install -e ".[dev]"        # dev brings pytest; the package itself needs nothing
+pip install git+https://github.com/polyketide/artifactaudit     # use it
+
+git clone https://github.com/polyketide/artifactaudit && cd artifactaudit
+pip install -e ".[dev]"        # develop it; dev brings pytest, the package itself needs nothing
 python -m pytest -q
 ```
 
-Only the document-extraction path needs anything more: `pip install -e ".[documents]"` adds `pypdf` and
-`openpyxl` so `ingest` can pull text out of PDFs and spreadsheets.
+Only the document-extraction path needs anything more. `pip install -e ".[documents]"` adds `pypdf` and
+`openpyxl`. `ingest` also shells out to external programs when they are present: poppler's `pdftotext`
+(preferred over `pypdf`), `pdftoppm` + `tesseract` for the opt-in OCR, and macOS `textutil` for
+`.doc`/`.docx`/`.rtf`. These are not installed by pip, and the extraction functions are not yet exercised
+by the test suite.
 
 ## Why this exists
 
@@ -121,8 +129,9 @@ silently passes an object it does not understand is not a gate.
 
 ### `ingest` — read coverage, so "I read the folder" is checkable
 
-`inventory` classifies every file under a root. `coverage` reports the fraction actually read **and the
-explicit not-read list with reasons**. Silent partial ingestion is the failure this closes.
+`inventory(root)` classifies every file under a root. `coverage(root, read_paths)` reports the fraction
+actually read **and the explicit not-read list with reasons**. Silent partial ingestion is the failure
+this closes.
 
 ## Confinement
 
@@ -186,8 +195,10 @@ def before_tool(name: str, args: dict) -> tuple[bool, str]:
 
 ## Scope and honesty
 
-Every function in the seven shipped modules is deterministic and covered by the test suite. The checks
-are **necessary, not sufficient**, and each has a limit worth knowing before you rely on it:
+Every function in the seven shipped modules is deterministic. All of them are covered by the test suite
+except `ingest`'s text-extraction path (`extract_text`, `pdf_text`, `pptx_text`, `ocr_pdf`,
+`format_inventory`). The checks are **necessary, not sufficient**, and each has a limit worth knowing
+before you rely on it:
 
 - `xref` cites only the first figure of a list or a range: `Figures 4 and 5` yields `Figure 4`, and
   `Figs. 2-4` yields `Figure 2`. Both are pinned by tests so they stay stated decisions.
@@ -208,4 +219,4 @@ See [PROVENANCE.md](PROVENANCE.md) for where this code came from and exactly wha
 
 ## License
 
-MIT.
+MIT. See `LICENSE`.
